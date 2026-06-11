@@ -32,7 +32,7 @@ class CheckoutController extends Controller
         }
 
         // Default initial shipping fee
-        $initialShippingFee = $coupon ? 0.0 : $this->calculateShippingFee(5.0, false, 'standard');
+        $initialShippingFee = $this->calculateShippingFee(5.0, $coupon, 'standard');
         $initialTotal = max(0, $subtotal - $discount) + $initialShippingFee;
 
         return view('checkout.index', compact(
@@ -103,7 +103,7 @@ class CheckoutController extends Controller
             $shop = $this->resolveShopLocation();
             $customer = $this->geocodeAddress($data['shipping_address']);
             $distanceKm = $this->resolveDistanceKm($shop, $customer);
-            $shippingFee = $this->calculateShippingFee($distanceKm, $coupon !== null, $data['shipping_method']);
+            $shippingFee = $this->calculateShippingFee($distanceKm, $coupon, $data['shipping_method']);
             $total = max(0, $subtotal - $discount) + $shippingFee;
 
             $order = Order::create([
@@ -184,7 +184,7 @@ class CheckoutController extends Controller
         $shop = $this->resolveShopLocation();
         $customer = $this->geocodeAddress($request->shipping_address);
         $distanceKm = $this->resolveDistanceKm($shop, $customer);
-        $shippingFee = $this->calculateShippingFee($distanceKm, $coupon !== null, $request->shipping_method);
+        $shippingFee = $this->calculateShippingFee($distanceKm, $coupon, $request->shipping_method);
         $total = max(0, $subtotal - $discount) + $shippingFee;
 
         return response()->json([
@@ -358,9 +358,12 @@ class CheckoutController extends Controller
         return max(0.1, round($earthRadius * $c, 2));
     }
 
-    private function calculateShippingFee(float $distanceKm, bool $hasCoupon, string $shippingMethod): float
+    private function calculateShippingFee(float $distanceKm, ?Coupon $coupon, string $shippingMethod): float
     {
-        if ($hasCoupon && (bool) config('shipping.free_with_coupon', true)) {
+        $freeWithCoupon = (bool) config('shipping.free_with_coupon', true);
+        $isFreeShipCoupon = $coupon && str_starts_with($coupon->code, 'LUCKYFREE-');
+
+        if (($coupon && $freeWithCoupon) || $isFreeShipCoupon) {
             return 0;
         }
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\LuckySpinController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/api/products/search', [ProductController::class, 'searchApi'])->name('products.search.api');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 // Publishers public listing and detail
@@ -38,6 +40,8 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
+
+Route::get('/lucky-spin', [LuckySpinController::class, 'index'])->name('lucky-spin.index');
 
 Route::get('/dashboard', function () {
     return redirect()->route('orders.index');
@@ -65,6 +69,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    
+    Route::post('/lucky-spin/spin', [LuckySpinController::class, 'spin'])->name('lucky-spin.spin');
 });
 
 // Admin Routes

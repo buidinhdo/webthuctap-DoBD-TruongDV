@@ -38,12 +38,66 @@
             </div>
 
             <div class="hidden items-center gap-3 lg:flex">
-                <form method="GET" action="{{ route('products.index') }}" class="gs-search">
-                    <svg class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.35-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-                    </svg>
-                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm sản phẩm" class="gs-search-input">
-                </form>
+                <div class="relative" x-data="{
+                    search: '{{ request('search') }}',
+                    suggestions: [],
+                    loading: false,
+                    showDropdown: false,
+                    fetchSuggestions() {
+                        if (this.search.trim().length < 2) {
+                            this.suggestions = [];
+                            this.showDropdown = false;
+                            return;
+                        }
+                        this.loading = true;
+                        fetch(`/api/products/search?search=${encodeURIComponent(this.search)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                this.suggestions = data;
+                                this.showDropdown = this.suggestions.length > 0;
+                                this.loading = false;
+                            })
+                            .catch(() => {
+                                this.loading = false;
+                            });
+                    }
+                }" @click.away="showDropdown = false">
+                    <form method="GET" action="{{ route('products.index') }}" class="gs-search">
+                        <svg class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.35-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                        </svg>
+                        <input type="search" name="search" x-model="search" @input.debounce.300ms="fetchSuggestions()" @focus="showDropdown = suggestions.length > 0" placeholder="Tìm kiếm sản phẩm" class="gs-search-input" autocomplete="off">
+                    </form>
+                    
+                    <!-- Suggestions Dropdown -->
+                    <div x-show="showDropdown" 
+                         class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden w-80"
+                         style="display: none;"
+                         x-transition>
+                        <ul class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                            <template x-for="item in suggestions" :key="item.id">
+                                <li>
+                                    <a :href="item.url" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-slate-700 no-underline">
+                                        <template x-if="item.image_url">
+                                            <img :src="item.image_url" :alt="item.name" class="w-10 h-10 object-cover rounded-md border border-slate-100 flex-shrink-0">
+                                        </template>
+                                        <template x-if="!item.image_url">
+                                            <div class="w-10 h-10 bg-slate-100 rounded-md border border-slate-100 flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        </template>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-semibold text-slate-900 truncate" x-text="item.name"></p>
+                                            <p class="text-xs text-sky-600 font-bold mt-0.5" x-text="item.price_formatted"></p>
+                                        </div>
+                                    </a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
                 @auth
                     <!-- Notification Icon -->
                     <div class="relative" x-data="{ notificationOpen: false }">
@@ -93,6 +147,26 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.6 3M7 13h10l3-7H6.6M7 13l-1.5 7h13L17 13M7 13h10" />
                     </svg>
                 </a>
+                @auth
+                    <!-- Lucky Spin Icon Button -->
+                    <a href="{{ route('lucky-spin.index') }}" class="gs-icon-button relative text-slate-700 hover:text-slate-900" aria-label="Vòng quay may mắn" title="Vòng quay may mắn">
+                        <!-- Custom slow spin animation on a wheel SVG icon -->
+                        <svg class="h-5 w-5 animate-[spin_10s_linear_infinite]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 3v18M3 12h18M5.636 5.636l12.728 12.728M5.636 18.364L18.364 5.636" stroke-linecap="round" />
+                        </svg>
+                        @php
+                            $hasSpunToday = \App\Models\UserNotification::where('user_id', auth()->id())
+                                ->where('title', 'Vòng quay may mắn')
+                                ->where('created_at', '>=', \Carbon\Carbon::today())
+                                ->exists();
+                        @endphp
+                        @if(!$hasSpunToday)
+                            <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full animate-ping"></span>
+                            <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                        @endif
+                    </a>
+                @endauth
             </div>
 
             <!-- Settings Dropdown -->
@@ -151,13 +225,67 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="px-4 pt-3">
-            <form method="GET" action="{{ route('products.index') }}" class="gs-search">
-                <svg class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.35-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-                </svg>
-                <input type="search" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm sản phẩm" class="gs-search-input">
-                <button type="submit" class="gs-search-button">Tìm</button>
-            </form>
+            <div class="relative" x-data="{
+                search: '{{ request('search') }}',
+                suggestions: [],
+                loading: false,
+                showDropdown: false,
+                fetchSuggestions() {
+                    if (this.search.trim().length < 2) {
+                        this.suggestions = [];
+                        this.showDropdown = false;
+                        return;
+                    }
+                    this.loading = true;
+                    fetch(`/api/products/search?search=${encodeURIComponent(this.search)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.suggestions = data;
+                            this.showDropdown = this.suggestions.length > 0;
+                            this.loading = false;
+                        })
+                        .catch(() => {
+                            this.loading = false;
+                        });
+                }
+            }" @click.away="showDropdown = false">
+                <form method="GET" action="{{ route('products.index') }}" class="gs-search">
+                    <svg class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.35-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                    </svg>
+                    <input type="search" name="search" x-model="search" @input.debounce.300ms="fetchSuggestions()" @focus="showDropdown = suggestions.length > 0" placeholder="Tìm kiếm sản phẩm" class="gs-search-input" autocomplete="off">
+                    <button type="submit" class="gs-search-button">Tìm</button>
+                </form>
+                
+                <!-- Suggestions Dropdown -->
+                <div x-show="showDropdown" 
+                     class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden w-full"
+                     style="display: none;"
+                     x-transition>
+                    <ul class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                        <template x-for="item in suggestions" :key="item.id">
+                            <li>
+                                <a :href="item.url" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-slate-700 no-underline">
+                                    <template x-if="item.image_url">
+                                        <img :src="item.image_url" :alt="item.name" class="w-10 h-10 object-cover rounded-md border border-slate-100 flex-shrink-0">
+                                    </template>
+                                    <template x-if="!item.image_url">
+                                        <div class="w-10 h-10 bg-slate-100 rounded-md border border-slate-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </template>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-slate-900 truncate" x-text="item.name"></p>
+                                        <p class="text-xs text-sky-600 font-bold mt-0.5" x-text="item.price_formatted"></p>
+                                    </div>
+                                </a>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
@@ -179,6 +307,9 @@
                 <x-responsive-nav-link :href="route('notifications.index')" :active="request()->routeIs('notifications.*')">
                     Thông báo
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('lucky-spin.index')" :active="request()->routeIs('lucky-spin.*')">
+                    Vòng quay may mắn
+                </x-responsive-nav-link>
             @endauth
         </div>
 
@@ -198,6 +329,7 @@
                     <x-responsive-nav-link :href="route('orders.index')">
                         Đơn hàng
                     </x-responsive-nav-link>
+
 
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">
