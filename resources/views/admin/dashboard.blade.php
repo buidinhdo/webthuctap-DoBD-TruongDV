@@ -68,7 +68,7 @@
     <div class="col-lg-8 d-flex">
         <div class="card chart-card h-100 w-100">
             <div class="card-header border-0 pb-0 revenue-chart-header">
-                <h5 class="card-title mb-0">Doanh thu,Đơn Hàng,Khách Hàng</h5>
+                <h5 class="card-title mb-0">Doanh Thu,Đơn Hàng,Khách Hàng</h5>
                 <small class="text-muted chart-subtitle">Thống kê 7 ngày gần đây</small>
             </div>
             <div class="card-body pt-3">

@@ -60,11 +60,11 @@ Route::middleware('admin')->group(function () {
     // Banners
     Route::get('banners', [BannerController::class, 'index'])->name('admin.banners.index');
     Route::get('banners/create', [BannerController::class, 'create'])->name('admin.banners.create');
-    Route::get('banners/{filename}/edit', [BannerController::class, 'edit'])->name('admin.banners.edit');
+    Route::get('banners/{banner}/edit', [BannerController::class, 'edit'])->name('admin.banners.edit');
     Route::post('banners', [BannerController::class, 'store'])->name('admin.banners.store');
-    Route::put('banners/{filename}', [BannerController::class, 'update'])->name('admin.banners.update');
-    Route::put('banners/{filename}/order', [BannerController::class, 'updateOrder'])->name('admin.banners.updateOrder');
-    Route::delete('banners/{filename}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
+    Route::put('banners/{banner}', [BannerController::class, 'update'])->name('admin.banners.update');
+    Route::put('banners/{banner}/order', [BannerController::class, 'updateOrder'])->name('admin.banners.updateOrder');
+    Route::delete('banners/{banner}', [BannerController::class, 'destroy'])->name('admin.banners.destroy');
     
     // Articles
     Route::resource('articles', ArticleController::class, ['as' => 'admin']);

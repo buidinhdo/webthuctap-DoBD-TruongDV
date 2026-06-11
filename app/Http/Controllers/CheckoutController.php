@@ -26,7 +26,7 @@ class CheckoutController extends Controller
         $subtotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
         $discount = 0;
         if ($coupon) {
-            $discount = $coupon->type === 'percent'
+            $discount = $coupon->type === 'percentage'
                 ? round($subtotal * ($coupon->value / 100), 2)
                 : (float) $coupon->value;
         }
@@ -95,7 +95,7 @@ class CheckoutController extends Controller
 
             $discount = 0;
             if ($coupon) {
-                $discount = $coupon->type === 'percent'
+                $discount = $coupon->type === 'percentage'
                     ? round($subtotal * ($coupon->value / 100), 2)
                     : (float) $coupon->value;
             }
@@ -176,7 +176,7 @@ class CheckoutController extends Controller
         $coupon = $this->resolveCoupon($request, $cart);
         $discount = 0;
         if ($coupon) {
-            $discount = $coupon->type === 'percent'
+            $discount = $coupon->type === 'percentage'
                 ? round($subtotal * ($coupon->value / 100), 2)
                 : (float) $coupon->value;
         }

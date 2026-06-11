@@ -9,16 +9,16 @@
     <div class="card-header">
         <h3 class="card-title">Sửa banner</h3>
     </div>
-    <form action="{{ route('admin.banners.update', $filename) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.banners.update', $banner->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="card-body">
             <div class="form-group">
                 <label>Banner hiện tại</label>
                 <div class="mb-3">
-                    <img src="/images/banners/{{ $filename }}" alt="{{ $filename }}" style="max-width: 100%; max-height: 400px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+                    <img src="{{ asset($banner->image_path) }}" alt="{{ basename($banner->image_path) }}" style="max-width: 100%; max-height: 400px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
                 </div>
-                <small class="form-text text-muted">{{ $filename }}</small>
+                <small class="form-text text-muted">{{ basename($banner->image_path) }}</small>
             </div>
             
             <div class="form-group">

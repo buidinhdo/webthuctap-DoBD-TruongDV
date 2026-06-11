@@ -4,6 +4,18 @@
             {{ session('success') }}
         </div>
     </div>
+    @if (session('success') === 'Đặt hàng thành công.')
+        <audio id="orderSuccessSound" src="https://tiengdong.com/wp-content/uploads/tieng-ting-ting-chuyen-khoan-www_tiengdong_com.mp3" preload="auto"></audio>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const audio = document.getElementById('orderSuccessSound');
+                if (audio) {
+                    audio.volume = 0.3; // Âm lượng nhẹ nhàng vừa phải
+                    audio.play().catch(err => console.log('Audio playback blocked:', err));
+                }
+            });
+        </script>
+    @endif
 @endif
 
 @if (session('error'))

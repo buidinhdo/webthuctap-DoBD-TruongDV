@@ -30,20 +30,20 @@
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>
-                        <img src="/images/banners/{{ $banner['filename'] }}" alt="{{ $banner['filename'] }}" style="max-width: 100px; max-height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+                        <img src="{{ asset($banner->image_path) }}" alt="{{ basename($banner->image_path) }}" style="max-width: 100px; max-height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
                     </td>
                     <td>
-                        <strong>{{ Str::limit($banner['filename'], 50) }}</strong>
+                        <strong>{{ Str::limit(basename($banner->image_path), 50) }}</strong>
                     </td>
                     <td>
-                        <form action="{{ route('admin.banners.updateOrder', $banner['filename']) }}" method="POST" class="d-flex align-items-center" style="gap: 8px;">
+                        <form action="{{ route('admin.banners.updateOrder', $banner->id) }}" method="POST" class="d-flex align-items-center" style="gap: 8px;">
                             @csrf
                             @method('PUT')
                             <input
                                 type="number"
                                 name="order"
                                 min="1"
-                                value="{{ $banner['order'] > 0 ? $banner['order'] : ($key + 1) }}"
+                                value="{{ $banner->order_column > 0 ? $banner->order_column : ($key + 1) }}"
                                 class="form-control form-control-sm"
                                 style="width: 90px;"
                                 required
@@ -52,10 +52,10 @@
                         </form>
                     </td>
                     <td>
-                        <a href="{{ route('admin.banners.edit', $banner['filename']) }}" class="btn btn-warning btn-sm" title="Sửa">
+                        <a href="{{ route('admin.banners.edit', $banner->id) }}" class="btn btn-warning btn-sm" title="Sửa">
                             <i class="fas fa-edit"></i> Sửa
                         </a>
-                        <form action="{{ route('admin.banners.destroy', $banner['filename']) }}" method="POST" style="display: inline;">
+                        <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn chắc chắn muốn xóa?')" title="Xóa">

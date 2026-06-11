@@ -82,7 +82,7 @@
             <tbody>
                 @forelse($products as $product)
                 <tr>
-                    <td>{{ $product->id }}</td>
+                    <td>{{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}</td>
                     <td>
                         @php $pimg = $product->primaryImage ?? $product->images->first(); @endphp
                         @if($pimg && $pimg->image_path)

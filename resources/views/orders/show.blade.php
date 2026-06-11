@@ -54,7 +54,13 @@
                     <p class="mt-2 text-sm text-slate-600">
                         Phương thức: <span class="font-semibold text-slate-900">{{ $order->shipping_method === 'express' ? 'Giao hàng nhanh (24h-48h)' : 'Giao hàng tiêu chuẩn (2-4 ngày)' }}</span>
                     </p>
-                    <p class="text-xs text-slate-500">Shop: {{ config('shipping.shop_address') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">
+                        Trạng thái đơn: <span class="font-semibold text-slate-900">{{ $order->status_label }}</span>
+                    </p>
+                    <p class="mt-1 text-sm text-slate-600">
+                        Thanh toán: <span class="font-semibold text-slate-900">{{ $order->payment_status_label }}</span>
+                    </p>
+                    <p class="text-xs text-slate-500 mt-3">Shop: {{ config('shipping.shop_address') }}</p>
                 </div>
             </div>
         </div>

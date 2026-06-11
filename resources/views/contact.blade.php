@@ -9,7 +9,7 @@
                 <div class="mt-6 space-y-3 text-sm text-slate-600">
                     <p><strong>Hotline:</strong> 0900 000 000</p>
                     <p><strong>Email:</strong> support@gamestation.test</p>
-                    <p><strong>Địa chỉ:</strong> 123 Game Street, Thành phố Hồ Chí Minh</p>
+                    <p><strong>Địa chỉ:</strong> 123 Nguyễn Huệ TP.HCM</p>
                 </div>
             </div>
             <div class="gs-card p-6">

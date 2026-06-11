@@ -3,7 +3,7 @@
         $subtotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
         $discount = 0;
         if ($coupon) {
-            $discount = $coupon->type === 'percent'
+            $discount = $coupon->type === 'percentage'
                 ? round($subtotal * ($coupon->value / 100), 2)
                 : $coupon->value;
         }

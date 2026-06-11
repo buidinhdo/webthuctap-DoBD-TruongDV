@@ -2,7 +2,7 @@
 
 return [
     // Shop location used to compute shipping distance.
-    'shop_address' => env('SHOP_ADDRESS', '123 Nguyen Hue, District 1, Ho Chi Minh City, Vietnam'),
+    'shop_address' => env('SHOP_ADDRESS', '123 Nguyễn Huệ TP.HCM'),
     'shop_lat' => env('SHOP_LAT', 10.774158),
     'shop_lng' => env('SHOP_LNG', 106.702213),
 

@@ -44,7 +44,17 @@ class OrderController extends Controller
             $validated['completed_at'] = now();
         }
 
+        $oldStatus = $order->status;
         $order->update($validated);
+
+        if ($oldStatus !== $order->status) {
+            \App\Models\UserNotification::create([
+                'user_id' => $order->user_id,
+                'title' => 'Cập nhật trạng thái đơn hàng',
+                'body' => "Đơn hàng #{$order->id} đã thay đổi trạng thái sang: " . $order->status_label,
+            ]);
+        }
+
         return redirect()->route('admin.orders.show', $order)->with('success', 'Trạng thái đơn hàng đã được cập nhật.');
     }
 }

@@ -15,9 +15,14 @@ class ProductController extends Controller
             ->where('is_active', true);
 
         if ($search = $request->string('search')->trim()->toString()) {
-            $query->where(function ($builder) use ($search) {
-                $builder->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
+            $keywords = array_filter(explode(' ', $search));
+            $query->where(function ($builder) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $builder->where(function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%")
+                            ->orWhere('sku', 'like', "%{$keyword}%");
+                    });
+                }
             });
         }
 
@@ -86,5 +91,45 @@ class ProductController extends Controller
             ->get();
 
         return view('products.show', compact('product', 'related'));
+    }
+
+    public function searchApi(Request $request)
+    {
+        $search = $request->string('search')->trim()->toString();
+        
+        if (mb_strlen($search) < 2) {
+            return response()->json([]);
+        }
+
+        // Tách chuỗi thành mảng các từ khóa
+        $keywords = array_filter(explode(' ', $search));
+
+        $products = Product::with(['primaryImage', 'images'])
+            ->where('is_active', true)
+            ->where(function ($query) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%")
+                          ->orWhere('sku', 'like', "%{$keyword}%");
+                    });
+                }
+            })
+            ->latest()
+            ->take(5) // Limit to 5 suggestions
+            ->get();
+
+        $results = $products->map(function ($product) {
+            $pimg = $product->primaryImage ?? $product->images->first();
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float)$product->price,
+                'price_formatted' => number_format($product->price, 0, ',', '.') . 'đ',
+                'url' => route('products.show', $product),
+                'image_url' => $pimg ? asset($pimg->image_path) : null,
+            ];
+        });
+
+        return response()->json($results);
     }
 }

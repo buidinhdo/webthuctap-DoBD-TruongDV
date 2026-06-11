@@ -36,6 +36,17 @@ class NotificationController extends Controller
             return response()->json(['success' => true]);
         }
 
+        // Redirect to order details if it's an order notification
+        if (preg_match('/Đơn hàng #(\d+)/', $notification->body, $matches) || preg_match('/Đơn hàng #(\d+)/', $notification->title, $matches)) {
+            $orderId = $matches[1];
+            return redirect()->route('orders.show', $orderId);
+        }
+
+        // Redirect to lucky spin page if it's a spin notification
+        if ($notification->title === 'Vòng quay may mắn') {
+            return redirect()->route('lucky-spin.index');
+        }
+
         return back()->with('success', 'Đã đánh dấu thông báo là đã đọc.');
     }
 

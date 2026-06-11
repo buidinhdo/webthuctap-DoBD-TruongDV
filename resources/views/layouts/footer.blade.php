@@ -30,7 +30,7 @@
             </div>
             <div>
                 <h3 class="gs-footer-title">Thông tin cửa hàng</h3>
-                <p class="mt-4 text-sm text-slate-300">HCM: 123 Game Street, Quận 1</p>
+                <p class="mt-4 text-sm text-slate-300">HCM: 123 Nguyễn Huệ TP.HCM</p>
                 <p class="mt-2 text-sm text-slate-300">HN: 88 Consoles Road, Hai Bà Trưng</p>
                 <div class="mt-4 flex gap-3">
                     <span class="gs-footer-badge">Giao nhanh</span>

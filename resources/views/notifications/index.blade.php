@@ -4,14 +4,34 @@
 
         <div class="mt-6 space-y-4">
             @forelse ($notifications as $notification)
-                <div class="gs-card p-5 {{ $notification->read_at ? 'opacity-70' : '' }}">
+                @php
+                    $orderId = null;
+                    if (preg_match('/Đơn hàng #(\d+)/', $notification->body, $matches)) {
+                        $orderId = $matches[1];
+                    }
+                @endphp
+                <div class="gs-card p-5 {{ $notification->read_at ? 'opacity-70' : '' }} hover:shadow-md transition">
                     <div class="flex items-start justify-between gap-4">
-                        <div>
+                        <div class="flex-1">
                             <p class="text-lg font-semibold text-slate-900">{{ $notification->title }}</p>
                             <p class="mt-2 text-sm text-slate-600 whitespace-pre-line">{{ $notification->body }}</p>
                             <p class="mt-2 text-xs text-slate-400">{{ $notification->created_at?->format('d/m/Y H:i') }}</p>
+                            
+                            @if ($orderId)
+                                <div class="mt-3">
+                                    @if (!$notification->read_at)
+                                        <form method="POST" action="{{ route('notifications.read', $notification) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-sm font-semibold text-sky-600 hover:text-sky-700">Xem chi tiết đơn hàng #{{ $orderId }} →</button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('orders.show', $orderId) }}" class="text-sm font-semibold text-sky-600 hover:text-sky-700">Xem chi tiết đơn hàng #{{ $orderId }} →</a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
-                        @if (!$notification->read_at)
+                        
+                        @if (!$notification->read_at && !$orderId)
                             <form method="POST" action="{{ route('notifications.read', $notification) }}">
                                 @csrf
                                 <button class="text-xs font-semibold text-sky-600">Đánh dấu đã đọc</button>
