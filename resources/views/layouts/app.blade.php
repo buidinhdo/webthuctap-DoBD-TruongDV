@@ -20,6 +20,36 @@
         <div class="min-h-screen">
             @include('layouts.navigation')
 
+            @auth
+                @php
+                    $hasSpunToday = \App\Models\UserNotification::where('user_id', auth()->id())
+                        ->where('title', 'Vòng quay may mắn')
+                        ->where('created_at', '>=', \Carbon\Carbon::today())
+                        ->exists();
+                @endphp
+                @if(!$hasSpunToday)
+                    <!-- Premium Lucky Spin Alert Bar -->
+                    <div class="py-3 px-4 shadow-md text-sm font-semibold tracking-wide transition-all relative overflow-hidden" style="background: linear-gradient(to right, #8b5cf6, #3b82f6); color: #ffffff;" x-data="{ showBar: true }" x-show="showBar">
+                        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 relative z-10">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🎁</span>
+                                <span>Bạn có <span class="font-bold" style="color: #fcd34d;">1 lượt quay may mắn</span> chưa sử dụng hôm nay! Hãy thử vận may nhận mã giảm giá lên tới 500k.</span>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <a href="{{ route('lucky-spin.index') }}" class="px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide uppercase transition shadow hover:scale-105 no-underline" style="background-color: #ffffff; color: #4f46e5; display: inline-block;">
+                                    QUAY NGAY
+                                </a>
+                                <button @click="showBar = false" class="transition-colors p-1" style="color: rgba(255, 255, 255, 0.8); background: none; border: none; cursor: pointer; display: flex; align-items: center;" aria-label="Đóng thông báo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endauth
+
             <!-- Page Heading -->
             @if (isset($header))
                 <header class="bg-white shadow">
